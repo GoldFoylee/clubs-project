@@ -13,3 +13,83 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  password    String
+  role        Role      @default(STUDENT) // STUDENT, CLUB_LEADER, FACULTY, ADMIN
+  clubs       ClubMember[]
+  events      EventRegistration[]
+  posts       Post[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Club {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String
+  category    String        // e.g. Technical, Cultural, Sports
+  createdBy   Int
+  members     ClubMember[]
+  events      Event[]
+  posts       Post[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ClubMember {
+  id        Int      @id @default(autoincrement())
+  clubId    Int
+  userId    Int
+  role      String   // PRESIDENT, TREASURER, MEMBER, etc.
+  joinedAt  DateTime @default(now())
+
+  club      Club     @relation(fields: [clubId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  clubId      Int
+  title       String
+  description String
+  date        DateTime
+  venue       String
+  capacity    Int?
+  registrations EventRegistration[]
+  
+  club        Club      @relation(fields: [clubId], references: [id])
+}
+
+model EventRegistration {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  userId    Int
+  attended  Boolean  @default(false)
+  registeredAt DateTime @default(now())
+
+  event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  clubId    Int
+  userId    Int
+  content   String
+  type      String   // ANNOUNCEMENT, POLL, MEDIA
+  createdAt DateTime @default(now())
+
+  club      Club     @relation(fields: [clubId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+enum Role {
+  STUDENT
+  CLUB_LEADER
+  FACULTY
+  ADMIN
+}
+
