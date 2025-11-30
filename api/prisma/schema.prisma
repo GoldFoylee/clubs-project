@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client"
+
 }
 
 datasource db {
@@ -15,11 +15,11 @@ datasource db {
 }
 
 model User {
-  id        String              @id @default(uuid())
+  id        Int                 @id @default(autoincrement())
   name      String
   email     String              @unique
   password  String
-  role      Role                @default(STUDENT) // STUDENT, CLUB_LEADER, FACULTY, ADMIN
+  role      Role                @default(STUDENT)
   clubs     ClubMember[]
   events    EventRegistration[]
   posts     Post[]

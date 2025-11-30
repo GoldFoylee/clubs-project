@@ -1,4 +1,3 @@
-import createError from "../utils/createError.js";
 import prisma from "../db/prisma.js";
 export const getEvents = async (req, res, next) => {
   try {
