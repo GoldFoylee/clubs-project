@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "./node_modules/@prisma/client"
@@ -14,82 +8,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  STUDENT
+  CLUB_LEADER
+  FACULTY
+  ADMIN
+}
+
+enum PostType {
+  ANNOUNCEMENT
+  EVENT_PROMOTION
+  GENERAL
+  POLL
+  FEEDBACK
+}
+
 model User {
-  id        String              @id @default(uuid())
-  name      String
-  email     String              @unique
-  password  String
-  role      Role                @default(STUDENT) // STUDENT, CLUB_LEADER, FACULTY, ADMIN
-  clubs     ClubMember[]
-  events    EventRegistration[]
-  posts     Post[]
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id            String              @id @default(uuid())
+  name          String
+  email         String              @unique
+  password      String              // Must be hashed in application code!
+  role          Role                @default(STUDENT)
+  
+  // Relations
+  clubs         ClubMember[]
+  events        EventRegistration[]
+  posts         Post[]
+  createdClubs  Club[]              @relation("ClubCreator")
+  
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@map("users")
 }
 
 model Club {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String
-  category    String // e.g. Technical, Cultural, Sports
-  createdBy   Int
-  members     ClubMember[]
-  events      Event[]
-  posts       Post[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            Int                 @id @default(autoincrement())
+  name          String
+  description   String?
+  category      String
+  createdBy     String
+  creator       User                @relation("ClubCreator", fields: [createdBy], references: [id])
+
+  members       ClubMember[]
+  events        Event[]
+  posts         Post[]
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([name])                    // Optional: prevent duplicate club names
+  @@index([name])
+  @@index([category])
+  @@index([createdBy])
+  @@map("clubs")
 }
 
 model ClubMember {
-  id       Int      @id @default(autoincrement())
-  clubId   Int
-  userId   Int
-  role     String // PRESIDENT, TREASURER, MEMBER, etc.
-  joinedAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  clubId    Int
+  userId    String
+  role      String    @default("MEMBER") // e.g., PRESIDENT, VP, MEMBER
+  joinedAt  DateTime  @default(now())
 
-  club Club @relation(fields: [clubId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])          // Critical: one membership per user per club
+  @@index([clubId])
+  @@index([userId])
+  @@map("club_members")
 }
 
 model Event {
   id            Int                 @id @default(autoincrement())
   clubId        Int
   title         String
-  description   String
+  description   String?
   date          DateTime
   venue         String
   capacity      Int?
+
+  club          Club                @relation(fields: [clubId], references: [id], onDelete: Cascade)
   registrations EventRegistration[]
 
-  club Club @relation(fields: [clubId], references: [id])
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([clubId])
+  @@index([date])
+  @@map("events")
 }
 
 model EventRegistration {
-  id           Int      @id @default(autoincrement())
-  eventId      Int
-  userId       Int
-  attended     Boolean  @default(false)
-  registeredAt DateTime @default(now())
+  id            Int       @id @default(autoincrement())
+  eventId       Int
+  userId        String
+  attended      Boolean   @default(false)
+  registeredAt  DateTime  @default(now())
 
-  event Event @relation(fields: [eventId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])         // Critical: prevent duplicate registrations
+  @@index([eventId])
+  @@index([userId])
+  @@index([attended])
+  @@map("event_registrations")
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   clubId    Int
-  userId    Int
+  userId    String
   content   String
-  type      String // ANNOUNCEMENT, POLL, MEDIA
-  createdAt DateTime @default(now())
+  type      PostType  @default(GENERAL)
 
-  club Club @relation(fields: [clubId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-}
+  club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-enum Role {
-  STUDENT
-  CLUB_LEADER
-  FACULTY
-  ADMIN
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([clubId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
+  @@map("posts")
 }
