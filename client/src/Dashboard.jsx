@@ -1,4 +1,3 @@
-// client/src/pages/Dashboard.jsx (or src/Dashboard.jsx)
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
