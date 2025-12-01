@@ -31,7 +31,7 @@ model Club {
   id          Int          @id @default(autoincrement())
   name        String
   description String
-  category    String // e.g. Technical, Cultural, Sports
+  category    String 
   createdBy   Int
   members     ClubMember[]
   events      Event[]
@@ -44,7 +44,8 @@ model ClubMember {
   id       Int      @id @default(autoincrement())
   clubId   Int
   userId   Int
-  role     String // PRESIDENT, TREASURER, MEMBER, etc.
+  role     String
+  status    MemberStatus @default(PENDING)
   joinedAt DateTime @default(now())
 
   club Club @relation(fields: [clubId], references: [id])
@@ -80,7 +81,7 @@ model Post {
   clubId    Int
   userId    Int
   content   String
-  type      String // ANNOUNCEMENT, POLL, MEDIA
+  type      String 
   createdAt DateTime @default(now())
 
   club Club @relation(fields: [clubId], references: [id])
@@ -91,4 +92,10 @@ enum Role {
   STUDENT
   CLUB_LEADER
   ADMIN
+}
+
+enum MemberStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

@@ -7,3 +7,9 @@ export const authorizeRoles=(...allowedRoles)=>{
         next()
     }
 }
+export const allowSelfOrAdmin=(req,res,next)=>{
+    const id=req.params.id
+    if (req.user.role==='ADMIN')return next()
+    if (req.user.id===id)return next()
+    return next(createError(403,"Access Denied"))
+}
