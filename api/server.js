@@ -10,6 +10,7 @@ import authRoute from "./routes/auth.route.js";
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
 app.use(
   cors({
@@ -40,6 +41,6 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on ${PORT}`);
 });

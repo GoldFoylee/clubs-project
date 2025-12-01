@@ -81,7 +81,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 py-10">
       <div className="max-w-5xl mx-auto px-4">
-        {/* Header */}
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
             Welcome back, {user.name} 👋
@@ -91,7 +90,6 @@ export default function Dashboard() {
           </p>
         </header>
 
-        {/* Top Summary Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl shadow-sm p-4 border border-slate-100">
             <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">

@@ -3,7 +3,7 @@ import prisma from "../db/prisma.js";
 import bcrypt from "bcrypt";
 
 export const getSingleUser = async (req, res, next) => {
-  const { id } = req.params;
+  const id = Number(req.params.id);
   try {
     const user = await prisma.user.findUnique({
       where: { id },
@@ -62,7 +62,7 @@ export const updateUser = async (req, res, next) => {
 
 export const getUserDashboard = async (req, res, next) => {
   try {
-    const userId = req.params.id;
+    const userId =  Number(req.params.id);
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
