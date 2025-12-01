@@ -90,6 +90,5 @@ model Post {
 enum Role {
   STUDENT
   CLUB_LEADER
-  FACULTY
   ADMIN
 }
