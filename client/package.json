@@ -12,10 +12,12 @@
   "dependencies": {
     "@prisma/client": "^6.16.1",
     "@tailwindcss/vite": "^4.1.13",
+    "axios": "^1.13.2",
     "express": "^5.1.0",
     "prisma": "^6.16.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.6",
     "tailwind": "^4.0.0",
     "tailwindcss": "^4.1.13"
   },
