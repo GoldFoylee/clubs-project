@@ -5,45 +5,59 @@ import bcrypt from "bcrypt";
 export const getSingleUser = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await prisma.user.findUnique({
-      where: { id },
+    const User = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
     });
-    if (!user) return next(createError(404, "User not found"));
-    res.status(200).json(user);
+    res.status(200).send(User);
   } catch (err) {
     next(err);
   }
 };
-
 export const deleteUser = async (req, res, next) => {
   const { id } = req.params;
+  // ALSO NEED TO CHECK WHEATHER THE USER IS AUTHORIZED TO DELETE THE USER WITH USERID
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: {
+        id: id,
+      },
     });
     if (!user) return next(createError(403, "User not found"));
-    await prisma.user.delete({ where: { id } });
+    await prisma.user.delete({
+      where: {
+        id: id,
+      },
+    });
     res.status(200).send("UserDeleted");
   } catch (err) {
     next(err);
   }
 };
-
 export const updateUser = async (req, res, next) => {
   const { id } = req.params;
   const data = req.body;
+  // ALSO NEED TO CHECK WHEATHER THE USER IS AUTHORIZED TO UPDATE THE USER WITH USERID
+  //THIS WE GONNA DO AFTERWARDS BCOZ AUTH NEEDED FOR PASSWORD
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: {
+        id: id,
+      },
     });
     if (!user) return next(createError(404, "User not found"));
     const updatedUser = await prisma.user.update({
-      where: { id },
+      where: {
+        id: id,
+      },
       data: {
-        ...(data.name && { name: data.name }),
-        ...(data.email && { email: data.email }),
-        ...(data.role && { role: data.role }),
-        ...(data.password && { password: bcrypt.hashSync(data.password, 10) }),
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.role !== undefined && { role: data.role }),
+        ...(data.password !== undefined && {
+          password: bcrypt.hashSync(data.password, 10),
+        }),
       },
       select: {
         id: true,
@@ -54,70 +68,8 @@ export const updateUser = async (req, res, next) => {
         updatedAt: true,
       },
     });
-    res.status(200).json(updatedUser);
+    res.status(200).send(updatedUser);
   } catch (err) {
     next(err);
-  }
-};
-
-export const getUserDashboard = async (req, res, next) => {
-  try {
-    const userId = req.params.id;
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        clubs: { include: { club: true } },
-        events: { include: { event: true } },
-      },
-    });
-
-    if (!user) return next(createError(404, "User not found"));
-
-    const response = {
-      id: user.id,
-      name: user.name,
-      role: user.role,
-      joinedClubs: user.clubs.map((cm) => ({
-        id: cm.club.id,
-        name: cm.club.name,
-        role: cm.role,
-      })),
-      eventsRegistered: user.events.map((er) => ({
-        id: er.event.id,
-        title: er.event.title,
-        date: er.event.date,
-        venue: er.event.venue,
-      })),
-    };
-
-    res.status(200).json(response);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const createUser = async (req, res, next) => {
-  try {
-    const { name, email, password, role } = req.body;
-    if (!name || !email || !password) {
-      return next(createError(400, "name, email and password are required"));
-    }
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password,
-        role: role || "STUDENT",
-      },
-    });
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(500).json({
-      message: "Failed to create user",
-      error: err.message || String(err),
-      code: err.code || null,
-      meta: err.meta || null,
-    });
   }
 };

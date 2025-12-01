@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+
 }
 
 datasource db {
@@ -42,7 +43,7 @@ model Club {
 model ClubMember {
   id       Int      @id @default(autoincrement())
   clubId   Int
-  userId   String
+  userId   Int
   role     String // PRESIDENT, TREASURER, MEMBER, etc.
   joinedAt DateTime @default(now())
 
@@ -66,7 +67,7 @@ model Event {
 model EventRegistration {
   id           Int      @id @default(autoincrement())
   eventId      Int
-  userId       String
+  userId       Int
   attended     Boolean  @default(false)
   registeredAt DateTime @default(now())
 
@@ -77,7 +78,7 @@ model EventRegistration {
 model Post {
   id        Int      @id @default(autoincrement())
   clubId    Int
-  userId    String
+  userId    Int
   content   String
   type      String // ANNOUNCEMENT, POLL, MEDIA
   createdAt DateTime @default(now())
