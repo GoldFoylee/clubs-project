@@ -81,7 +81,7 @@ const LoginSignup = () => {
 
         if (user?.id) {
           localStorage.setItem("userId", user.id);
-          localStorage.setItem("user",JSON.stringify({ id: user.id, name: user.name, email: user.email }));
+          localStorage.setItem("user", JSON.stringify({ id: user.id, name: user.name, email: user.email }));
           navigate("/dashboard");
         } else {
           setIsLogin(true);
