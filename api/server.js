@@ -2,12 +2,22 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import eventRoute from "./routes/event.route.js";
-import userRoute from "./routes/user.route.js"
-import authRoute from './routes/auth.route.js'
+import userRoute from "./routes/user.route.js";
+import authRoute from './routes/auth.route.js';
+import cors from "cors";
 
 const app = express();
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 dotenv.config();
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true, 
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended:true}))
