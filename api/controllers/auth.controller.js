@@ -5,13 +5,15 @@ import createError from "../utils/createError.js";
 
 const createToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
 const cookieOptions = {
   httpOnly: true,
   maxAge: 7 * 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };
 
 export const signup = async (req, res, next) => {

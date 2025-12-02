@@ -56,7 +56,7 @@ const LoginSignup = () => {
           password: formData.password,
         });
 
-        const { user, token } = res.data;
+        const user = res.data;
 
         if (!user?.id) {
           setError("Invalid response from server");
@@ -64,24 +64,28 @@ const LoginSignup = () => {
         }
 
         localStorage.setItem("userId", user.id);
-        if (token) localStorage.setItem("token", token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ id: user.id, name: user.name, email: user.email })
+        );
 
         navigate("/dashboard");
       } else {
-        const res = await api.post("/auth/register", {
+        const res = await api.post("/auth/signup", {
           name: formData.name,
           email: formData.email,
           password: formData.password,
         });
 
-        const { user, token } = res.data;
+        const user = res.data;
 
         if (user?.id) {
           localStorage.setItem("userId", user.id);
-          if (token) localStorage.setItem("token", token);
+          localStorage.setItem("user",JSON.stringify({ id: user.id, name: user.name, email: user.email }));
           navigate("/dashboard");
         } else {
           setIsLogin(true);
+          setError("Account created. Please log in.");
         }
       }
     } catch (err) {
